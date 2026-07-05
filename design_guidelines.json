@@ -1,0 +1,105 @@
+{
+  "project_name": "School Management ERP",
+  "theme": "Light",
+  "archetype": "Archetype 4 (Swiss & High-Contrast)",
+  "emotional_tone": "Authority, Clarity, Trust, and Function-First",
+  "core_principles": [
+    "Information Clarity above all: Dashboard must be scanable and intuitive.",
+    "Color is Function: 95% of the UI is monochrome. Use color exclusively to guide actions and highlight statuses.",
+    "Alignment Precision: Text aligns left, numeric data and currency (₹) strictly align right.",
+    "Density Adaptation: 'Control Room' tight grid logic for data-heavy sections."
+  ],
+  "typography": {
+    "families": {
+      "headings": "Cabinet Grotesk, sans-serif",
+      "body": "IBM Plex Sans, sans-serif",
+      "mono": "IBM Plex Mono, monospace"
+    },
+    "rules": {
+      "h1": "text-4xl sm:text-5xl tracking-tight font-bold",
+      "h2": "text-2xl sm:text-3xl tracking-tight font-semibold",
+      "h3": "text-xl sm:text-2xl font-medium",
+      "labels_overlines": "text-xs tracking-[0.2em] uppercase font-bold text-[#52525B]",
+      "body": "text-base leading-relaxed text-[#0A0A0A]",
+      "data_numbers": "font-mono text-sm tracking-tight"
+    }
+  },
+  "colors": {
+    "background": {
+      "base": "#FFFFFF",
+      "surface": "#F9FAFB",
+      "surface_alt": "#F3F4F6"
+    },
+    "text": {
+      "primary": "#0A0A0A",
+      "secondary": "#52525B",
+      "muted": "#A1A1AA"
+    },
+    "accents": {
+      "primary_action": "#002FA7",
+      "destructive": "#FF3B30",
+      "warning": "#FFD700",
+      "success": "#34C759",
+      "border": "#E5E5EA"
+    }
+  },
+  "layout_and_spacing": {
+    "grid_system": "Mode B: 'Control Room' Grid",
+    "rules": [
+      "Mobile-First: Start with grid-cols-1, scale up to md:grid-cols-3 or lg:grid-cols-4 for dashboards.",
+      "Gaps: Tight gaps (gap-4 to gap-6) for data correlation.",
+      "Surfaces: Flat solid backgrounds. NO glassmorphism. Subtle 1px borders (border-border/40) to expose the grid skeleton.",
+      "Radii: Max 4px border-radius (rounded-sm) for a sharp, technical look."
+    ]
+  },
+  "components": {
+    "navigation": {
+      "style": "Solid background sidebar or fixed top-nav with hard bottom/right border.",
+      "icons": "@phosphor-icons/react (Duotone or Regular weight)"
+    },
+    "buttons": {
+      "primary": "bg-[#002FA7] text-white rounded-sm hover:bg-[#002277] hover:text-white transition-colors font-medium px-4 py-2",
+      "secondary": "bg-transparent border border-[#E5E5EA] text-[#0A0A0A] rounded-sm hover:bg-[#F3F4F6] hover:text-[#0A0A0A] transition-colors px-4 py-2",
+      "destructive": "bg-[#FF3B30] text-white rounded-sm hover:bg-[#D63028] hover:text-white px-4 py-2"
+    },
+    "cards_and_widgets": {
+      "style": "Flat background, 1px subtle border (border-[#E5E5EA]), no shadow by default. Hover adds slight lift (-translate-y-1) and shadow-sm."
+    },
+    "data_tables": {
+      "alignment": "Text left-aligned, numbers/currency right-aligned.",
+      "density": "Compact to Comfortable (py-2 or py-3 for rows).",
+      "headers": "Uppercase, text-xs tracking-wider text-secondary border-b border-[#E5E5EA]"
+    },
+    "forms_and_inputs": {
+      "style": "Shadcn components heavily customized. Flat white background, 1px solid border. Focus rings MUST be visible (focus:ring-2 focus:ring-[#002FA7]/50)."
+    }
+  },
+  "media": {
+    "images": {
+      "login_hero": {
+        "url": "https://images.unsplash.com/photo-1621192754911-ffe0d95929dd?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzV8MHwxfHNlYXJjaHwyfHxtb2Rlcm4lMjBzY2hvb2wlMjBidWlsZGluZyUyMGFyY2hpdGVjdHVyZXxlbnwwfHx8fDE3ODMwOTk1MDN8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Modern school building for login page split layout."
+      },
+      "receipt_texture": {
+        "url": "https://images.unsplash.com/photo-1763076021077-d0bbce4eb105",
+        "description": "Clean white texture, useful for print receipt background or watermarking subtly."
+      }
+    }
+  },
+  "interactions_and_motion": {
+    "hover_states": "Always explicitly set text color on hover. Background darkens slightly for buttons.",
+    "transitions": "transition-all duration-200 ease-in-out",
+    "accessibility": "Must respect prefers-reduced-motion. High contrast focus indicators."
+  },
+  "testing": {
+    "requirements": "All interactive elements, buttons, links, and form inputs MUST include a 'data-testid' attribute in kebab-case."
+  },
+  "instructions_to_main_agent": [
+    "Install @phosphor-icons/react using yarn for dense dashboard icons.",
+    "Use standard .js files for React components.",
+    "Ensure 'INR' currency symbol (₹) is used and correctly aligned in right-columns of tables.",
+    "Do NOT use placeholder images. Rely solely on the media urls provided.",
+    "Use 'lucide-react' if phosphor-icons is unavailable, but prefer phosphor.",
+    "Build the dashboard using pure Shadcn form components with tight grids."
+  ]
+}
