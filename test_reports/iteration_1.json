@@ -1,0 +1,51 @@
+{
+  "summary": "First E2E run for School Management App. Backend pytest suite (16 tests) covering auth, users, permissions, classes, students, fee_components, fee_overrides priority resolution, discounts, invoices, payments (partial->paid, over-pay rejection), settings and stats all PASS. Playwright UI flow covering login -> create class -> create student -> create fee component -> generate invoice -> record payment -> receipt print page -> permissions matrix -> dashboard -> logout PASSES end-to-end against the public REACT_APP_BACKEND_URL. Dashboard stats reflect the created data (Students=1, Classes=2, Outstanding=₹850, Collections=₹2,400).",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "DELETE /api/students/{id}", "issue": "Student deletion cascades fee_overrides and discounts but leaves their invoices and payments untouched. This creates orphan records that still appear in /api/stats (outstanding/collections) and /api/invoices lists after the student is gone. Consider either blocking delete when invoices exist, or cascading."},
+      {"endpoint": "DELETE /api/classes/{id}", "issue": "Correctly blocks when students exist, but cleans up class-level fee overrides only. No orphan-invoice check needed here since students block first. OK."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "StudentDetail payment invoice <select>", "issue": "Console error: 'In HTML, <span> cannot be a child of <option>' -> hydration error. Caused by the Emergent dev tracing plugin wrapping option text in a decorative <span style={display:contents}>. Benign at runtime but produces noisy React warnings and is technically invalid HTML.", "selector": "[data-testid='payment-invoice-select'] > option", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Students -> New student modal", "issues": ["The Date Of Birth field uses the browser's default date picker (<input type='date'>) instead of a shadcn Calendar component. Consider replacing with the project's Calendar/Popover primitives for design consistency."]},
+      {"screen": "Students / class dropdown label", "issues": ["Option label formatted as 'ClassName — Section' (em-dash). Not a bug, but note for test writers: cannot select_option by naive label with plain hyphen."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "OPTIONAL: On DELETE /api/students/{id}, either (a) block when invoices/payments exist, or (b) cascade delete invoices+payments to avoid orphan totals showing on the dashboard.",
+    "OPTIONAL: Fix the dev-time hydration warning caused by the tracing plugin injecting <span> children into <option>. If the plugin is Emergent-provided, it can be marked to skip <option> children.",
+    "OPTIONAL: Replace native <input type='date'> in the Student modal with the shadcn Calendar component for consistent design language."
+  ],
+  "critical_code_review_comments": [
+    "server.py is 916 lines and mixes every resource + auth + startup in one file. It works and is readable, but should be split into modules (routers/auth.py, routers/students.py, routers/invoices.py, models.py, deps.py) before growing further.",
+    "get_current_user reads token from cookies OR Authorization header — good. But login endpoint returns token only in JSON body and never sets an httpOnly cookie despite the CORS 'allow_credentials=True' setting. If cookie-based auth is desired for CSRF-safe browser use, set the cookie; otherwise the cookie-branch in get_current_user is unreachable and misleading.",
+    "CORS_ORIGINS defaults to '*' AND allow_credentials=True in .env. Browsers reject credentialed requests to wildcard origins. Fine here because frontend uses Bearer header, but the combination is a common footgun — either drop allow_credentials or set explicit origins.",
+    "seed_admin runs on every startup. It correctly updates the admin password if .env changed (good), but also silently forces role='admin' back. Not a bug, just be aware.",
+    "resolve_amount_for_student does 2 DB round-trips per component per student. For large fee structures this is O(n) awaits. Consider batching or caching per invoice generation.",
+    "delete_student cleans up fee_overrides + discounts but not invoices/payments (see minor issue above).",
+    "No brute-force lockout on /api/auth/login. Not requested by the problem statement (which specified simple username/password), but worth noting.",
+    "receipt_number generation uses count_documents({}) + 1. Not race-safe under concurrent payment creation — could produce duplicate receipt numbers. Consider a MongoDB atomic counter (findOneAndUpdate on a counters collection) if concurrency matters.",
+    "Every route uses require_permission which fetches role_permissions on every request. Consider a small TTL cache."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py"
+  ],
+  "success_rate": {"backend": "100% (16/16)", "frontend": "100% (all critical flows)"},
+  "test_credentials": "admin / admin123 (seeded on startup from /app/backend/.env). /app/memory/test_credentials.md is empty/missing — main agent should populate it for future testers.",
+  "seed_data_creation": "Backend tests create TEST_* prefixed classes/students/fee-components/discounts/invoices/payments/users; each class teardowns its own users, students, classes, fee_components. A few orphan invoices/payments remain because student-delete does not cascade to invoices (see minor issue). UI test also left one UI_Class_*, UI_Student_*, UI_FC_*, an invoice and a receipt visible on the dashboard.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend suite lives at /app/backend/tests/backend_test.py and runs cleanly via `pytest backend/tests/backend_test.py -v`. Uses pytest-xdist; if you add tests that mutate shared state be aware fixtures are session-per-worker. Public endpoint URL is REACT_APP_BACKEND_URL; auth is Bearer JWT (also accepts cookie 'access_token' but login endpoint only returns JSON body). Class dropdown labels use em-dash — use option value or a contains-match. Receipt print page is at /receipts/:id/print (outside Layout) and requires the user to be logged in. Dashboard/testing accumulates TEST_ prefixed leftover data that main agent may want to purge before demo.",
+  "rca of the issue": "N/A — no blocking issue found. Minor observations captured above."
+}
